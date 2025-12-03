@@ -1,0 +1,128 @@
+{
+  "Science": {
+    "Matter in Our Surroundings": [
+      { "topic": "Physical nature of matter", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Characteristics of particles of matter", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "States of matter", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Interconversion of states", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Latent heat", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Evaporation", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Factors affecting evaporation", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Cooling by evaporation", "difficulty": "medium", "estimated_time": 35 }
+    ],
+
+    "Is Matter Around Us Pure?": [
+      { "topic": "Mixtures and types", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Solutions and concentration", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Suspensions and colloids", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Separation techniques", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Physical and chemical changes", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Elements, compounds and mixtures", "difficulty": "medium", "estimated_time": 35 }
+    ],
+
+    "Atoms and Molecules": [
+      { "topic": "Laws of chemical combination", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Dalton's atomic theory", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Atoms, molecules and ions", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Writing chemical formulae", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Molecular mass and mole concept", "difficulty": "hard", "estimated_time": 50 }
+    ],
+
+    "Structure of the Atom": [
+      { "topic": "Charged particles", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Thomson's model", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Rutherford's model", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Bohr's model", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Valency", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Atomic number and mass number", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Isotopes and isobars", "difficulty": "medium", "estimated_time": 35 }
+    ],
+
+    "The Fundamental Unit of Life": [
+      { "topic": "Cell structure and cell theory", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Prokaryotic and eukaryotic cells", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Plasma membrane", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Nucleus", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Cytoplasm", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Cell organelles", "difficulty": "hard", "estimated_time": 50 }
+    ],
+
+    "Tissues": [
+      { "topic": "Plant tissues", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Animal tissues", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Epithelial tissue", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Connective tissue", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Muscular tissue", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Nervous tissue", "difficulty": "hard", "estimated_time": 50 }
+    ],
+
+    "Motion": [
+      { "topic": "Distance and displacement", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Speed and velocity", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Acceleration", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Motion graphs", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Equations of motion", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Uniform and non-uniform motion", "difficulty": "medium", "estimated_time": 35 }
+    ],
+
+    "Force and Laws of Motion": [
+      { "topic": "Balanced and unbalanced forces", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Newton's First Law", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Inertia and mass", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Newton's Second Law", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Newton's Third Law", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Action and reaction", "difficulty": "easy", "estimated_time": 20 }
+    ],
+
+    "Gravitation": [
+      { "topic": "Universal law of gravitation", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Free fall", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Acceleration due to gravity", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Mass and weight", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Thrust and pressure", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Archimedes’ principle", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Buoyancy", "difficulty": "medium", "estimated_time": 35 }
+    ],
+
+    "Work and Energy": [
+      { "topic": "Concept of work", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Energy and its forms", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Kinetic and potential energy", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Work-energy theorem", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Rate of doing work: Power", "difficulty": "easy", "estimated_time": 20 }
+    ],
+
+    "Sound": [
+      { "topic": "Nature of sound", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Propagation of sound", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Sound wave characteristics", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Speed of sound", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Reflection of sound", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Echo and reverberation", "difficulty": "medium", "estimated_time": 35 }
+    ],
+
+    "Why Do We Fall Ill?": [
+      { "topic": "Health and diseases", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Infectious and non-infectious diseases", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Causes of diseases", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Immunity", "difficulty": "hard", "estimated_time": 50 },
+      { "topic": "Prevention and treatment", "difficulty": "easy", "estimated_time": 20 }
+    ],
+
+    "Natural Resources": [
+      { "topic": "Air", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Water", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Soil", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Biogeochemical cycles", "difficulty": "hard", "estimated_time": 50 }
+    ],
+
+    "Improvement in Food Resources": [
+      { "topic": "Crop production", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Crop protection", "difficulty": "medium", "estimated_time": 35 },
+      { "topic": "Animal husbandry", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Cattle farming", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Poultry farming", "difficulty": "easy", "estimated_time": 20 },
+      { "topic": "Fish production", "difficulty": "easy", "estimated_time": 20 }
+    ]
+  }
+}

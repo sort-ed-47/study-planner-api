@@ -19,9 +19,9 @@ features = joblib.load("spdm_features.pkl")
 
 
 # ------------------------------
-# LOAD SYLLABUS
+# LOAD COMBINED SYLLABUS (Maths + Science)
 # ------------------------------
-with open("science_syllabus.json") as f:
+with open("syllabus.json") as f:
     SYLLABUS = json.load(f)
 
 
@@ -29,8 +29,9 @@ with open("science_syllabus.json") as f:
 # INPUT MODEL
 # ------------------------------
 class FullPlanInput(BaseModel):
-    exam_date: str              # YYYY-MM-DD
-    study_mode: str             # light / moderate / aggressive
+    subject: str               # <--- FIXED
+    exam_date: str
+    study_mode: str
 
     marks: float
     past_marks: list
@@ -83,22 +84,43 @@ def generate_study_plan(data: FullPlanInput):
     predicted_slope = float(slope_model.predict(X)[0])
 
     # -----------------------------------
-    # STEP 3 — REALISTIC PLANNER ENGINE v2
+    # STEP 3 — PREPARE SUBJECT-SPECIFIC MAPS
     # -----------------------------------
-    weakness_map = {"Science": weakness_score}
-    speed_map = {"Science": speed_category}
+    subject_key = None
+    sub = data.subject.lower().strip()
 
+    # Match subject with keys in syllabus file
+    for key in SYLLABUS.keys():
+        if key.lower() == sub:
+            subject_key = key
+            break
+
+    # If subject doesn't exist
+    if not subject_key:
+        return {
+            "status": "error",
+            "message": f"Subject '{data.subject}' not found in syllabus.json"
+        }
+
+    # Weakness & speed maps MUST use the subject key
+    weakness_map = {subject_key: weakness_score}
+    speed_map = {subject_key: speed_category}
+
+    # -----------------------------------
+    # STEP 4 — GENERATE STUDY PLAN
+    # -----------------------------------
     plan = generate_realistic_plan_v2(
         syllabus_json=SYLLABUS,
         weakness_map=weakness_map,
         speed_map=speed_map,
         study_mode=data.study_mode,
         exam_date=data.exam_date,
-        discipline_score=discipline_score
+        discipline_score=discipline_score,
+        subject=subject_key  # <-- FIXED
     )
 
     # -----------------------------------
-    # STEP 4 — RETURN FULL RESPONSE
+    # STEP 5 — RETURN FULL RESPONSE
     # -----------------------------------
     return {
         "status": "success",

@@ -155,13 +155,255 @@
 #     print("Plan generated!\n")
 #     print(json.dumps(plan, indent=2))
 
+# import json
+# from datetime import datetime, timedelta
+# import random
+
+
+# # ---------------------------------------------------
+# # DAILY LIMIT SETTINGS BASED ON STUDY MODE
+# # ---------------------------------------------------
+# DAILY_LIMITS = {
+#     "light":   {"easy": 2, "medium": 1, "hard": 0, "max_topics": 3, "time": 90},
+#     "moderate": {"easy": 2, "medium": 1, "hard": 1, "max_topics": 4, "time": 150},
+#     "aggressive": {"easy": 3, "medium": 2, "hard": 1, "max_topics": 6, "time": 240}
+# }
+
+# # ---------------------------------------------------
+# # MOTIVATIONAL MESSAGES
+# # ---------------------------------------------------
+# MOTIVATION = [
+#     "🔥 Consistency beats intensity — just show up today!",
+#     "📚 Every small step today builds your future.",
+#     "⚡ Stay sharp! You’re improving faster than you think.",
+#     "💪 Hard topics don't scare you anymore.",
+#     "🌱 1% improvement today = 100% growth ahead.",
+#     "🚀 Believe in your daily effort — it compounds."
+# ]
+
+
+# # ---------------------------------------------------
+# # TIME ADJUSTMENT BASED ON LEARNING SPEED & WEAKNESS
+# # ---------------------------------------------------
+# def adjusted_time(base, difficulty, speed, weakness):
+#     t = base
+
+#     # speed categories: 0 = slow, 1 = normal, 2 = fast
+#     if speed == 0:
+#         t *= 1.3
+#     if speed == 2:
+#         t *= 0.8
+
+#     # weakness > 0.6 → extra time needed
+#     if weakness > 0.6:
+#         t *= 1.2
+
+#     return round(t)
+
+
+
+# # ---------------------------------------------------
+# # SUBJECT SELECTION LOGIC
+# # ---------------------------------------------------
+# def select_subject(syllabus_json, subject_from_api):
+#     """
+#     syllabus_json = { "Science": {...}, "Maths": {...} }
+#     subject_from_api = "maths" or "science"
+#     """
+
+#     # Normalize subject string
+#     if subject_from_api:
+#         subject_from_api = subject_from_api.lower().strip()
+
+#         # Match subject key in JSON
+#         for key in syllabus_json.keys():
+#             if key.lower() == subject_from_api:
+#                 return key  # exact match
+
+#     # Fallback: take FIRST key in file
+#     return list(syllabus_json.keys())[0]
+
+
+
+# # ---------------------------------------------------
+# # MAIN PLANNER ENGINE
+# # ---------------------------------------------------
+# def generate_realistic_plan_v2(
+#     syllabus_json,
+#     weakness_map,
+#     speed_map,
+#     study_mode,
+#     exam_date,
+#     discipline_score,
+#     subject
+# ):
+
+#     # ---------------------------------------------------
+#     # DATE HANDLING
+#     # ---------------------------------------------------
+#     today = datetime.now().date()
+#     exam = datetime.strptime(exam_date, "%Y-%m-%d").date()
+
+#     # If exam date already passed → give 45 days
+#     if exam <= today:
+#         exam = today + timedelta(days=45)
+
+#     days_left = (exam - today).days
+#     limits = DAILY_LIMITS[study_mode]
+#     time_budget = limits["time"]
+
+#     # ---------------------------------------------------
+#     # SUBJECT PICKING (FULLY FIXED)
+#     # ---------------------------------------------------
+#     subject_key = select_subject(syllabus_json, subject)
+
+#     syllabus = syllabus_json[subject_key]
+
+#     # ---------------------------------------------------
+#     # BUILD TASK LIST
+#     # ---------------------------------------------------
+#     tasks = []
+
+#     for chapter, topics in syllabus.items():
+#         for item in topics:
+
+#             t = adjusted_time(
+#                 base=item["estimated_time"],
+#                 difficulty=item["difficulty"],
+#                 speed=speed_map.get(subject_key, 1),
+#                 weakness=weakness_map.get(subject_key, 0.4)
+#             )
+
+#             tasks.append({
+#                 "chapter": chapter,
+#                 "topic": item["topic"],
+#                 "difficulty": item["difficulty"],
+#                 "time": t
+#             })
+
+#     # ---------------------------------------------------
+#     # DAILY PLAN GENERATION
+#     # ---------------------------------------------------
+#     plan = {}
+#     current_day = today
+
+#     i = 0
+#     while i < len(tasks):
+
+#         plan[current_day] = {
+#             "topics": [],
+#             "message": random.choice(MOTIVATION)
+#         }
+
+#         used = {"easy": 0, "medium": 0, "hard": 0, "topics": 0, "time": 0}
+
+#         while i < len(tasks) and used["topics"] < limits["max_topics"]:
+#             task = tasks[i]
+#             diff = task["difficulty"]
+
+#             # difficulty cap
+#             if used[diff] >= limits[diff]:
+#                 break
+
+#             # time cap
+#             if used["time"] + task["time"] > time_budget:
+#                 break
+
+#             plan[current_day]["topics"].append(task)
+
+#             used[diff] += 1
+#             used["topics"] += 1
+#             used["time"] += task["time"]
+
+#             i += 1
+
+#         current_day += timedelta(days=1)
+
+#     # ---------------------------------------------------
+#     # WEEKLY OVERVIEW
+#     # ---------------------------------------------------
+#     weekly = {}
+#     week = 1
+#     week_start = today
+
+#     for day, detail in plan.items():
+#         if day >= week_start + timedelta(days=7):
+#             week += 1
+#             week_start += timedelta(days=7)
+
+#         if week not in weekly:
+#             weekly[week] = []
+
+#         weekly[week].extend([t["chapter"] for t in detail["topics"]])
+
+#     # remove duplicate chapters per week
+#     for wk in weekly:
+#         weekly[wk] = list(dict.fromkeys(weekly[wk]))
+
+#     # ---------------------------------------------------
+#     # REVISION PLAN
+#     # ---------------------------------------------------
+#     revision = {}
+
+#     for day, detail in plan.items():
+#         todays_topics = detail["topics"]
+#         if not todays_topics:
+#             continue
+
+#         # Day +1 → revise last 2 topics
+#         rd1 = day + timedelta(days=1)
+#         if rd1 <= exam:
+#             revision.setdefault(rd1, [])
+#             revision[rd1].extend([t["topic"] for t in todays_topics[-2:]])
+
+#         # Day +3 → revise medium & hard topics
+#         rd3 = day + timedelta(days=3)
+#         if rd3 <= exam:
+#             revision.setdefault(rd3, [])
+#             revision[rd3].extend([
+#                 t["topic"] for t in todays_topics if t["difficulty"] in ("medium", "hard")
+#             ])
+
+#         # Day +7 → chapter summary (first 3 key topics)
+#         rd7 = day + timedelta(days=7)
+#         if rd7 <= exam:
+#             revision.setdefault(rd7, [])
+#             chapters = list(dict.fromkeys([t["chapter"] for t in todays_topics]))
+#             for chap in chapters:
+#                 key_topics = syllabus[chap][:3]
+#                 revision[rd7].extend([t["topic"] for t in key_topics])
+
+#     # cap revision (max 5 topics/day)
+#     for day in revision:
+#         revision[day] = revision[day][:5]
+
+#     # ---------------------------------------------------
+#     # RETURN FINAL STUDY SCHEDULE
+#     # ---------------------------------------------------
+#     return {
+#         "subject_used": subject_key,  # for debugging
+#         "days_left": days_left,
+#         "daily_minutes": time_budget,
+
+#         "daily_plan": {
+#             str(day): plan[day] for day in plan
+#         },
+
+#         "revision_plan": {
+#             str(day): revision[day] for day in revision
+#         },
+
+#         "weekly_overview": weekly
+#     }
+
+
 import json
 from datetime import datetime, timedelta
 import random
 
 
 # ---------------------------------------------------
-# DAILY LIMIT SETTINGS BASED ON STUDY MODE
+# DAILY LIMIT SETTINGS
 # ---------------------------------------------------
 DAILY_LIMITS = {
     "light":   {"easy": 2, "medium": 1, "hard": 0, "max_topics": 3, "time": 90},
@@ -170,7 +412,7 @@ DAILY_LIMITS = {
 }
 
 # ---------------------------------------------------
-# MOTIVATIONAL MESSAGES
+# MOTIVATION QUOTES
 # ---------------------------------------------------
 MOTIVATION = [
     "🔥 Consistency beats intensity — just show up today!",
@@ -183,50 +425,35 @@ MOTIVATION = [
 
 
 # ---------------------------------------------------
-# TIME ADJUSTMENT BASED ON LEARNING SPEED & WEAKNESS
+# TIME ADJUSTMENT BASED ON SPEED & WEAKNESS
 # ---------------------------------------------------
 def adjusted_time(base, difficulty, speed, weakness):
     t = base
 
-    # speed categories: 0 = slow, 1 = normal, 2 = fast
     if speed == 0:
         t *= 1.3
     if speed == 2:
         t *= 0.8
-
-    # weakness > 0.6 → extra time needed
     if weakness > 0.6:
         t *= 1.2
 
     return round(t)
 
 
-
 # ---------------------------------------------------
-# SUBJECT SELECTION LOGIC
+# SUBJECT SELECTION
 # ---------------------------------------------------
 def select_subject(syllabus_json, subject_from_api):
-    """
-    syllabus_json = { "Science": {...}, "Maths": {...} }
-    subject_from_api = "maths" or "science"
-    """
-
-    # Normalize subject string
     if subject_from_api:
-        subject_from_api = subject_from_api.lower().strip()
-
-        # Match subject key in JSON
+        sub = subject_from_api.lower().strip()
         for key in syllabus_json.keys():
-            if key.lower() == subject_from_api:
-                return key  # exact match
-
-    # Fallback: take FIRST key in file
-    return list(syllabus_json.keys())[0]
-
+            if key.lower() == sub:
+                return key
+    return list(syllabus_json.keys())[0]  # fallback
 
 
 # ---------------------------------------------------
-# MAIN PLANNER ENGINE
+# MAIN ENGINE — now supports topic slicing
 # ---------------------------------------------------
 def generate_realistic_plan_v2(
     syllabus_json,
@@ -235,16 +462,13 @@ def generate_realistic_plan_v2(
     study_mode,
     exam_date,
     discipline_score,
-    subject
+    subject,
+    start_topic=None,
+    end_topic=None
 ):
 
-    # ---------------------------------------------------
-    # DATE HANDLING
-    # ---------------------------------------------------
     today = datetime.now().date()
     exam = datetime.strptime(exam_date, "%Y-%m-%d").date()
-
-    # If exam date already passed → give 45 days
     if exam <= today:
         exam = today + timedelta(days=45)
 
@@ -252,42 +476,68 @@ def generate_realistic_plan_v2(
     limits = DAILY_LIMITS[study_mode]
     time_budget = limits["time"]
 
-    # ---------------------------------------------------
-    # SUBJECT PICKING (FULLY FIXED)
-    # ---------------------------------------------------
     subject_key = select_subject(syllabus_json, subject)
-
     syllabus = syllabus_json[subject_key]
 
     # ---------------------------------------------------
-    # BUILD TASK LIST
+    # 1. FLATTEN SYLLABUS INTO ORDERED TOPIC LIST
     # ---------------------------------------------------
-    tasks = []
-
+    flat_topics = []
     for chapter, topics in syllabus.items():
-        for item in topics:
-
-            t = adjusted_time(
-                base=item["estimated_time"],
-                difficulty=item["difficulty"],
-                speed=speed_map.get(subject_key, 1),
-                weakness=weakness_map.get(subject_key, 0.4)
-            )
-
-            tasks.append({
+        for t in topics:
+            flat_topics.append({
                 "chapter": chapter,
-                "topic": item["topic"],
-                "difficulty": item["difficulty"],
-                "time": t
+                "topic": t["topic"],
+                "difficulty": t["difficulty"],
+                "estimated_time": t["estimated_time"]
             })
 
     # ---------------------------------------------------
-    # DAILY PLAN GENERATION
+    # 2. TOPIC-RANGE SELECTION (OPTIONAL)
+    # ---------------------------------------------------
+    if start_topic and end_topic:
+        start_topic = start_topic.lower().strip()
+        end_topic = end_topic.lower().strip()
+
+        start_idx = next((i for i, t in enumerate(flat_topics)
+                          if t["topic"].lower() == start_topic), None)
+
+        end_idx = next((i for i, t in enumerate(flat_topics)
+                        if t["topic"].lower() == end_topic), None)
+
+        if start_idx is None or end_idx is None:
+            raise ValueError("Invalid start_topic or end_topic")
+
+        if end_idx < start_idx:
+            raise ValueError("end_topic cannot come before start_topic")
+
+        flat_topics = flat_topics[start_idx:end_idx + 1]
+
+    # ---------------------------------------------------
+    # 3. BUILD TASK LIST (ONLY SELECTED TOPICS)
+    # ---------------------------------------------------
+    tasks = []
+    for item in flat_topics:
+        t = adjusted_time(
+            item["estimated_time"],
+            item["difficulty"],
+            speed_map.get(subject_key, 1),
+            weakness_map.get(subject_key, 0.4)
+        )
+        tasks.append({
+            "chapter": item["chapter"],
+            "topic": item["topic"],
+            "difficulty": item["difficulty"],
+            "time": t
+        })
+
+    # ---------------------------------------------------
+    # 4. DAILY PLAN BUILDING
     # ---------------------------------------------------
     plan = {}
     current_day = today
-
     i = 0
+
     while i < len(tasks):
 
         plan[current_day] = {
@@ -298,14 +548,13 @@ def generate_realistic_plan_v2(
         used = {"easy": 0, "medium": 0, "hard": 0, "topics": 0, "time": 0}
 
         while i < len(tasks) and used["topics"] < limits["max_topics"]:
+
             task = tasks[i]
             diff = task["difficulty"]
 
-            # difficulty cap
             if used[diff] >= limits[diff]:
                 break
 
-            # time cap
             if used["time"] + task["time"] > time_budget:
                 break
 
@@ -320,7 +569,7 @@ def generate_realistic_plan_v2(
         current_day += timedelta(days=1)
 
     # ---------------------------------------------------
-    # WEEKLY OVERVIEW
+    # 5. WEEKLY OVERVIEW
     # ---------------------------------------------------
     weekly = {}
     week = 1
@@ -336,12 +585,11 @@ def generate_realistic_plan_v2(
 
         weekly[week].extend([t["chapter"] for t in detail["topics"]])
 
-    # remove duplicate chapters per week
     for wk in weekly:
         weekly[wk] = list(dict.fromkeys(weekly[wk]))
 
     # ---------------------------------------------------
-    # REVISION PLAN
+    # 6. REVISION PLAN — works automatically for sliced topics
     # ---------------------------------------------------
     revision = {}
 
@@ -350,21 +598,22 @@ def generate_realistic_plan_v2(
         if not todays_topics:
             continue
 
-        # Day +1 → revise last 2 topics
+        # +1 Day
         rd1 = day + timedelta(days=1)
         if rd1 <= exam:
             revision.setdefault(rd1, [])
             revision[rd1].extend([t["topic"] for t in todays_topics[-2:]])
 
-        # Day +3 → revise medium & hard topics
+        # +3 Day
         rd3 = day + timedelta(days=3)
         if rd3 <= exam:
             revision.setdefault(rd3, [])
             revision[rd3].extend([
-                t["topic"] for t in todays_topics if t["difficulty"] in ("medium", "hard")
+                t["topic"] for t in todays_topics
+                if t["difficulty"] in ("medium", "hard")
             ])
 
-        # Day +7 → chapter summary (first 3 key topics)
+        # +7 Day
         rd7 = day + timedelta(days=7)
         if rd7 <= exam:
             revision.setdefault(rd7, [])
@@ -373,25 +622,17 @@ def generate_realistic_plan_v2(
                 key_topics = syllabus[chap][:3]
                 revision[rd7].extend([t["topic"] for t in key_topics])
 
-    # cap revision (max 5 topics/day)
     for day in revision:
         revision[day] = revision[day][:5]
 
     # ---------------------------------------------------
-    # RETURN FINAL STUDY SCHEDULE
+    # RETURN RESULT
     # ---------------------------------------------------
     return {
-        "subject_used": subject_key,  # for debugging
+        "subject_used": subject_key,
         "days_left": days_left,
         "daily_minutes": time_budget,
-
-        "daily_plan": {
-            str(day): plan[day] for day in plan
-        },
-
-        "revision_plan": {
-            str(day): revision[day] for day in revision
-        },
-
+        "daily_plan": {str(day): plan[day] for day in plan},
+        "revision_plan": {str(day): revision[day] for day in revision},
         "weekly_overview": weekly
     }

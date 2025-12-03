@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from engine import generate_realistic_plan_v2
 
-app = FastAPI(title="SortED Realistic Study Planner API v2")
+app = FastAPI(title="SortED Study Planner API v2 (Topic Range Ready)")
 
 
 # ------------------------------
@@ -19,7 +19,7 @@ features = joblib.load("spdm_features.pkl")
 
 
 # ------------------------------
-# LOAD COMBINED SYLLABUS (Maths + Science)
+# LOAD COMBINED SYLLABUS
 # ------------------------------
 with open("syllabus.json") as f:
     SYLLABUS = json.load(f)
@@ -29,9 +29,12 @@ with open("syllabus.json") as f:
 # INPUT MODEL
 # ------------------------------
 class FullPlanInput(BaseModel):
-    subject: str               # <--- FIXED
+    subject: str
     exam_date: str
     study_mode: str
+
+    start_topic: str | None = None
+    end_topic: str | None = None
 
     marks: float
     past_marks: list
@@ -48,9 +51,7 @@ class FullPlanInput(BaseModel):
 @app.post("/generate_study_plan")
 def generate_study_plan(data: FullPlanInput):
 
-    # -----------------------------------
-    # STEP 1 — FEATURE ENGINEERING
-    # -----------------------------------
+    # FEATURE CALCULATIONS
     past_mean = np.mean(data.past_marks) if data.past_marks else 0
     past_std = np.std(data.past_marks) if data.past_marks else 0
 
@@ -68,7 +69,6 @@ def generate_study_plan(data: FullPlanInput):
         0.2 * (data.events_participation / 10)
     )
 
-    # SPDM feature row
     X = pd.DataFrame([[
         data.marks, past_mean, past_std,
         quiz_mean, quiz_std,
@@ -76,39 +76,24 @@ def generate_study_plan(data: FullPlanInput):
         data.cluster_id, improvement_slope, discipline_score
     ]], columns=features)
 
-    # -----------------------------------
-    # STEP 2 — RUN SPDM MODELS
-    # -----------------------------------
     weakness_score = float(weakness_model.predict(X)[0])
     speed_category = int(speed_model.predict(X)[0])
     predicted_slope = float(slope_model.predict(X)[0])
 
-    # -----------------------------------
-    # STEP 3 — PREPARE SUBJECT-SPECIFIC MAPS
-    # -----------------------------------
-    subject_key = None
-    sub = data.subject.lower().strip()
-
-    # Match subject with keys in syllabus file
+    # SUBJECT MAPS
+    sub = None
     for key in SYLLABUS.keys():
-        if key.lower() == sub:
-            subject_key = key
+        if key.lower() == data.subject.lower():
+            sub = key
             break
 
-    # If subject doesn't exist
-    if not subject_key:
-        return {
-            "status": "error",
-            "message": f"Subject '{data.subject}' not found in syllabus.json"
-        }
+    if not sub:
+        return {"status": "error", "message": "Subject not found in syllabus"}
 
-    # Weakness & speed maps MUST use the subject key
-    weakness_map = {subject_key: weakness_score}
-    speed_map = {subject_key: speed_category}
+    weakness_map = {sub: weakness_score}
+    speed_map = {sub: speed_category}
 
-    # -----------------------------------
-    # STEP 4 — GENERATE STUDY PLAN
-    # -----------------------------------
+    # GENERATE PLAN
     plan = generate_realistic_plan_v2(
         syllabus_json=SYLLABUS,
         weakness_map=weakness_map,
@@ -116,12 +101,11 @@ def generate_study_plan(data: FullPlanInput):
         study_mode=data.study_mode,
         exam_date=data.exam_date,
         discipline_score=discipline_score,
-        subject=subject_key  # <-- FIXED
+        subject=sub,
+        start_topic=data.start_topic,
+        end_topic=data.end_topic
     )
 
-    # -----------------------------------
-    # STEP 5 — RETURN FULL RESPONSE
-    # -----------------------------------
     return {
         "status": "success",
         "analysis": {
@@ -136,4 +120,4 @@ def generate_study_plan(data: FullPlanInput):
 
 @app.get("/")
 def home():
-    return {"message": "SortED Realistic Study Planner API v2 is running 🚀"}
+    return {"message": "Topic-Range Enabled Study Planner API Running 🚀"}
